@@ -36,10 +36,13 @@ rl.question("Por favor, insira o link do YouTube: ", async (link) => {
       comment: element
         .getElementsByTagName("ytd-expander")[0]
         .getElementsByTagName("yt-formatted-string")[0].textContent,
+      upVotes: element
+        .getElementsByTagName("ytd-comment-action-buttons-renderer")[0]
+        .querySelector("#vote-count-middle")?.textContent.trim() ?? "",
     }));
   });
 
-  const json2csvParser = new Parser({ fields: ["user", "comment"] });
+  const json2csvParser = new Parser({ fields: ["user", "comment", "upVotes"] });
   const csv = json2csvParser.parse(elements);
 
   fs.writeFile("output.csv", csv, "utf8", (err) => {
