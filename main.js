@@ -25,7 +25,7 @@ rl.question("Por favor, insira o link do YouTube: ", async (link) => {
   await page.waitForSelector("ytd-comment-thread-renderer", { timeout: 60000 });
 
   await navigationPromise;
-  const elements = await page.evaluate(() => {
+  const infoOutput = await page.evaluate(() => {
     const elements = document.getElementsByTagName(
       "ytd-comment-thread-renderer"
     );
@@ -43,7 +43,7 @@ rl.question("Por favor, insira o link do YouTube: ", async (link) => {
   });
 
   const json2csvParser = new Parser({ fields: ["user", "comment", "upVotes"] });
-  const csv = json2csvParser.parse(elements);
+  const csv = json2csvParser.parse(infoOutput);
 
   fs.writeFile("output.csv", csv, "utf8", (err) => {
     if (err) {
