@@ -40,7 +40,7 @@ rl.question("Por favor, insira o link do YouTube: ", async (link) => {
 }
 
 //esperar o ultimo comenario carregar
-await new Promise((resolve) => setTimeout(resolve, 5000)); // espera 2 segundos após cada clique
+await new Promise((resolve) => setTimeout(resolve, 5000)); // espera 5 segundos após cada clique
 
 
   await navigationPromise;
