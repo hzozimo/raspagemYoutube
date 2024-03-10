@@ -35,7 +35,12 @@ rl.question("Por favor, insira o link do YouTube: ", async (link) => {
   const moreButton = await element.$('.ytd-comment-replies-renderer .more-button');
   if (moreButton) {
     await moreButton.click();
-    await new Promise((resolve) => setTimeout(resolve, 500)); // espera 2 segundos após cada clique
+    await new Promise((resolve) => setTimeout(resolve, 1000)); // espera 0,5 segundos após cada clique
+    let loadMoreButton = await element.$('#button > ytd-button-renderer > yt-button-shape > button > yt-touch-feedback-shape > div > div.yt-spec-touch-feedback-shape__fill');
+    if (loadMoreButton) {
+      await loadMoreButton.click();
+      await new Promise((resolve) => setTimeout(resolve, 500)); // espera 2 segundos após cada clique
+    }
   }
 }
 
