@@ -72,8 +72,8 @@ async function scrapeYoutubeComments(link) {
     let output = [];
     Array.from(elements).forEach((element) => {
       output.push({
-        user: element.getElementsByTagName("h3")[0].getElementsByTagName("yt-formatted-string")[0].textContent,
-        comment: element.getElementsByTagName("ytd-expander")[0].getElementsByTagName("yt-formatted-string")[0].textContent,
+        user: element.getElementsByTagName("h3")[0].getElementsByTagName("yt-formatted-string")[0]?.textContent,
+        comment: element.getElementsByTagName("ytd-expander")[0].getElementsByTagName("yt-formatted-string")[0]?.textContent,
         upVotes: element.getElementsByTagName("ytd-comment-action-buttons-renderer")[0].querySelector("#vote-count-middle")?.textContent.trim(),
         isReply: false,
       });
@@ -84,7 +84,7 @@ async function scrapeYoutubeComments(link) {
           output.push({
             user: replyElement.querySelector('#body').getElementsByTagName("h3")[0]?.textContent.trim(),
             comment: replyElement.querySelector('#body').querySelector('#comment-content')?.textContent.replace('\n', ' ').replace('Ler mais', ' ').replace('Mostrar menos', ' ').trim(),
-            upVotes: replyElement.querySelector('#vote-count-left').textContent.trim(),
+            upVotes: replyElement.querySelector('#vote-count-left')?.textContent.trim(),
             isReply: true
           });
         });
