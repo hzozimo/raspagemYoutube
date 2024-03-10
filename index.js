@@ -80,7 +80,7 @@ async function scrapeYoutubeComments(link) {
 
       if (element.querySelector(".ytd-comment-replies-renderer")?.getElementsByClassName('more-button')[0]) {
         const replyElements = element.getElementsByClassName("ytd-comment-replies-renderer");
-        Array.from(replyElements).forEach(async (replyElement) => {
+        Array.from(replyElements).forEach((replyElement) => {
           output.push({
             user: replyElement.querySelector('#body').getElementsByTagName("h3")[0]?.textContent.trim(),
             comment: replyElement.querySelector('#body').querySelector('#comment-content')?.textContent.replace('\n', ' ').replace('Ler mais', ' ').replace('Mostrar menos', ' ').trim(),
