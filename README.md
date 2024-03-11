@@ -7,12 +7,20 @@ npm install
 
 COMO USAR
 
-node index.js youtube_link
+```
+function test() {
+  console.log("node index.js youtube_link");
+}
+```
 
 
 para criar um executável 
 
-nexe -i index.js -o raspagemYoutube.exe --build --verbose
+```
+function test() {
+  console.log("nexe -i index.js -o raspagemYoutube.exe --build --verbose");
+}
+```
 
 abra o executavel no cmd 
 
@@ -23,6 +31,6 @@ a saída é um arquivo CSV com as colunas
 
 onde:
 - user: é o usuário que fez o comentário
--isReply: se o comentário é resposta para outro comentário, se for false é o comentário principal e todo true abaixo dele é uma resposta a esse
--upVotes: quantos upvotes esse comentário tem
--comment: O texto do comentário
+- isReply: se o comentário é resposta para outro comentário, se for false é o comentário principal e todo true abaixo dele é uma resposta a esse
+- upVotes: quantos upvotes esse comentário tem
+- comment: O texto do comentário
