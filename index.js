@@ -1,6 +1,7 @@
 const fs = require("fs");
 const puppeteer = require("puppeteer");
 const { Parser } = require("json2csv");
+const path = require("path");
 
 async function scrapeYoutubeComments(link) {
   const browser = await puppeteer.launch({ headless: false });
@@ -101,7 +102,7 @@ async function scrapeYoutubeComments(link) {
 
   const now = new Date();
   const timestamp = now.toISOString().replace(/:/g, "-").replace("T", "_").split(".")[0];
-  const fileName = `comentarios_video_id_${link.split("v=")[1]}_${timestamp}.csv`;
+  const fileName = path.join(__dirname, `comentarios_video_id_${link.split("v=")[1]}_${timestamp}.csv`);
 
   fs.writeFile(fileName, csv, "utf8", (err) => {
     if (err) {
