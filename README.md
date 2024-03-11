@@ -8,18 +8,14 @@ npm install
 COMO USAR
 
 ```
-function test() {
-  console.log("node index.js youtube_link");
-}
+node index.js youtube_link"
 ```
 
 
 para criar um executável 
 
 ```
-function test() {
-  console.log("nexe -i index.js -o raspagemYoutube.exe --build --verbose");
-}
+nexe -i index.js -o raspagemYoutube.exe --build --verbose"
 ```
 
 abra o executavel no cmd 
