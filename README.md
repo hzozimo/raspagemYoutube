@@ -8,7 +8,7 @@ npm install
 COMO USAR
 
 ```
-node index.js youtube_link"
+node index.js youtube_link
 ```
 
 
