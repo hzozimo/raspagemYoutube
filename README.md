@@ -30,3 +30,5 @@ onde:
 - isReply: se o comentário é resposta para outro comentário, se for false é o comentário principal e todo true abaixo dele é uma resposta a esse
 - upVotes: quantos upvotes esse comentário tem
 - comment: O texto do comentário
+- numberOfReplies: Quantas respostas esse comentário teve
+- date: A data aproximada do comentário (como o youtube apresenta datas como "há 1 semana", "há 1 mês", para datas acima de 7 dias podemos apenas extimar a data aproximada do comentário)
