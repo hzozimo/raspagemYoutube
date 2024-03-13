@@ -9,15 +9,15 @@ async function scrapeYoutubeComments(link) {
   await page.setViewport({ width: 1280, height: 800 });
   const navigationPromise = page.waitForNavigation();
   await page.goto(link);
-  await page.waitForSelector('#title > h1');
+  await page.waitForSelector("#title > h1");
 
   // Wait for the video player to load
-  await page.waitForSelector('video');
+  await page.waitForSelector("video");
   await new Promise((resolve) => setTimeout(resolve, 5000));
- 
+
   // Disable autoplay by interacting with the YouTube player
-  await page.focus('body');
-  await page.keyboard.press('Space');
+  await page.focus("body");
+  await page.keyboard.press("Space");
 
   // Scroll the page
   let lastHeight = await page.evaluate("document.documentElement.scrollHeight");
@@ -37,7 +37,7 @@ async function scrapeYoutubeComments(link) {
         window.scrollTo(0, scrollHeight);
       }, lastHeight);
     }
-    await new Promise((resolve) => setTimeout(resolve, 1000)); 
+    await new Promise((resolve) => setTimeout(resolve, 1000));
     newHeight = await page.evaluate("document.documentElement.scrollHeight");
 
     if (lastHeight === newHeight) {
@@ -48,15 +48,19 @@ async function scrapeYoutubeComments(link) {
   }
 
   // Load replies to comments
-  await page.waitForSelector('ytd-comment-thread-renderer');
+  await page.waitForSelector("ytd-comment-thread-renderer");
   const commentSectionElements = await page.$$("ytd-comment-thread-renderer");
 
   for (const element of commentSectionElements) {
-    const moreButton = await element.$(".ytd-comment-replies-renderer .more-button");
+    const moreButton = await element.$(
+      ".ytd-comment-replies-renderer .more-button"
+    );
     if (moreButton) {
       await moreButton.click();
       await new Promise((resolve) => setTimeout(resolve, 1500)); // Wait 1.5 seconds after each click
-      let loadMoreButton = await element.$("#button > ytd-button-renderer > yt-button-shape > button > yt-touch-feedback-shape > div > div.yt-spec-touch-feedback-shape__fill");
+      let loadMoreButton = await element.$(
+        "#button > ytd-button-renderer > yt-button-shape > button > yt-touch-feedback-shape > div > div.yt-spec-touch-feedback-shape__fill"
+      );
       if (loadMoreButton) {
         await loadMoreButton.click();
         await new Promise((resolve) => setTimeout(resolve, 100)); // Wait 0.1 seconds after each click
@@ -69,24 +73,99 @@ async function scrapeYoutubeComments(link) {
 
   await navigationPromise;
   const infoOutput = await page.evaluate(() => {
-    const elements = document.getElementsByTagName("ytd-comment-thread-renderer");
+
+    function parseDate(dateString) {
+      const now = new Date();
+      const match = dateString.match(
+        /há (\d+) (horas|dias|semanas|meses|anos)/
+      );
+
+      if (match) {
+        const quantity = parseInt(match[1]);
+        const unit = match[2];
+
+        switch (unit) {
+          case "horas":
+            now.setHours(now.getHours() - quantity);
+            break;
+          case "dias":
+            now.setDate(now.getDate() - quantity);
+            break;
+          case "semanas":
+            now.setDate(now.getDate() - quantity * 7);
+            break;
+          case "meses":
+            now.setMonth(now.getMonth() - quantity);
+            break;
+          case "anos":
+            now.setFullYear(now.getFullYear() - quantity);
+            break;
+        }
+      }
+
+      return now.toLocaleDateString("pt-BR");
+    }
+    const elements = document.getElementsByTagName(
+      "ytd-comment-thread-renderer"
+    );
     let output = [];
     Array.from(elements).forEach((element) => {
       output.push({
-        user: element?.getElementsByTagName("h3")[0]?.getElementsByTagName("yt-formatted-string")[0]?.textContent,
-        comment: element?.getElementsByTagName("ytd-expander")[0]?.getElementsByTagName("yt-formatted-string")[0]?.textContent,
-        upVotes: element?.getElementsByTagName("ytd-comment-action-buttons-renderer")[0]?.querySelector("#vote-count-middle")?.textContent.trim(),
+        user: element
+          ?.getElementsByTagName("h3")[0]
+          ?.getElementsByTagName("yt-formatted-string")[0]?.textContent,
+        comment: element
+          ?.getElementsByTagName("ytd-expander")[0]
+          ?.getElementsByTagName("yt-formatted-string")[0]?.textContent,
+        upVotes: element
+          ?.getElementsByTagName("ytd-comment-action-buttons-renderer")[0]
+          ?.querySelector("#vote-count-middle")
+          ?.textContent.trim(),
         isReply: false,
+        numberOfReplies:
+          parseInt(
+            element?.querySelector(
+              "#less-replies > yt-button-shape > button > div.yt-spec-button-shape-next__button-text-content > span"
+            )?.textContent
+          ) || "0",
+        date: parseDate(
+          element
+            ?.querySelector("#header-author > yt-formatted-string")
+            ?.textContent.trim()
+        ),
       });
 
-      if (element?.querySelector(".ytd-comment-replies-renderer")?.getElementsByClassName('more-button')[0]) {
-        const replyElements = element?.getElementsByClassName("ytd-comment-replies-renderer");
+      if (
+        element
+          ?.querySelector(".ytd-comment-replies-renderer")
+          ?.getElementsByClassName("more-button")[0]
+      ) {
+        const replyElements = element
+          ?.querySelector("#replies")
+          .querySelectorAll("#contents > ytd-comment-renderer");
         Array.from(replyElements).forEach((replyElement) => {
           output.push({
-            user: replyElement?.querySelector('#body')?.getElementsByTagName("h3")[0]?.textContent.trim(),
-            comment: replyElement?.querySelector('#body')?.querySelector('#comment-content')?.textContent.replace('\n', ' ').replace('Ler mais', ' ').replace('Mostrar menos', ' ').trim(),
-            upVotes: replyElement?.querySelector('#vote-count-left')?.textContent.trim(),
-            isReply: true
+            user: replyElement
+              ?.querySelector("#body")
+              ?.getElementsByTagName("h3")[0]
+              ?.textContent.trim(),
+            comment: replyElement
+              ?.querySelector("#body")
+              ?.querySelector("#comment-content")
+              ?.textContent.replace("\n", " ")
+              .replace("Ler mais", " ")
+              .replace("Mostrar menos", " ")
+              .trim(),
+            upVotes: replyElement
+              ?.querySelector("#vote-count-left")
+              ?.textContent.trim(),
+            isReply: true,
+            numberOfReplies: "",
+            date: parseDate(
+              replyElement
+                ?.querySelector("#header-author > yt-formatted-string > a")
+                ?.textContent.trim() || ""
+            ),
           });
         });
       }
@@ -95,14 +174,35 @@ async function scrapeYoutubeComments(link) {
   });
 
   // Remove duplicate lines
-  const uniqueOutput = infoOutput.filter((item, index, self) => self.findIndex(t => t.user === item.user && t.comment === item.comment) === index);
+  const uniqueOutput = infoOutput.filter(
+    (item, index, self) =>
+      self.findIndex(
+        (t) => t.user === item.user && t.comment === item.comment
+      ) === index
+  );
 
-  const json2csvParser = new Parser({ fields: ["user", "isReply", "upVotes", "comment"] });
+  const json2csvParser = new Parser({
+    fields: [
+      "user",
+      "isReply",
+      "upVotes",
+      "comment",
+      "numberOfReplies",
+      "date",
+    ],
+  });
   const csv = json2csvParser.parse(uniqueOutput);
 
   const now = new Date();
-  const timestamp = now.toISOString().replace(/:/g, "-").replace("T", "_").split(".")[0];
-  const fileName = path.join(__dirname, `comentarios_video_id_${link.split("v=")[1]}_${timestamp}.csv`);
+  const timestamp = now
+    .toISOString()
+    .replace(/:/g, "-")
+    .replace("T", "_")
+    .split(".")[0];
+  const fileName = path.join(
+    __dirname,
+    `comentarios_video_id_${link.split("v=")[1]}_${timestamp}.csv`
+  );
 
   fs.writeFile(fileName, csv, "utf8", (err) => {
     if (err) {
